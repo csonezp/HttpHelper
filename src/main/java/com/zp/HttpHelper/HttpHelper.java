@@ -96,6 +96,7 @@ public class HttpHelper {
 		if (url == null || url.isEmpty()) {
 			return null;
 		}
+		charset = (charset == null ? CHARSET_UTF8 : charset);
 		CloseableHttpClient httpClient = getCloseableHttpClient();
 		HttpGet get = new HttpGet(url);
 		if (cookie != null && !cookie.isEmpty()) {
@@ -107,7 +108,7 @@ public class HttpHelper {
 		try {
 			response = httpClient.execute(get);
 			HttpEntity entity = response.getEntity();
-			res = EntityUtils.toString(entity);
+			res = EntityUtils.toString(entity,charset);
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -135,11 +136,15 @@ public class HttpHelper {
 	public static String get(String url) throws IOException {
 		return get(url, null, null);
 	}
+	public static String get(String url,String charset) throws IOException{
+		return get(url, null, charset);
+	}
 
 	public static String post(String url, Map<String, String> map)
 			throws IOException {
 		return post(url, map, null, null);
 	}
+	
 
 	/**
 	 * post方法，cookie可为空
@@ -173,7 +178,7 @@ public class HttpHelper {
 				post.setHeader("Cookie", cookie);
 			}
 			response = httpClient.execute(post);
-			res = EntityUtils.toString(response.getEntity());
+			res = EntityUtils.toString(response.getEntity(),charset);
 
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
