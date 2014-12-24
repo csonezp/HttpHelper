@@ -19,9 +19,22 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 public class HttpHelper {
+	private HttpHelper(){}
 	private static final String CHARSET_UTF8 = "UTF-8";
 	private static final String CHARSET_GBK = "GBK";
-
+	//cache开关，true则开启自身缓存
+	private boolean cacheswitch=false;
+	
+	public boolean isCacheswitch() {
+		return cacheswitch;
+	}
+	public void setCacheswitch(boolean cacheswitch) {
+		this.cacheswitch = cacheswitch;
+	}
+	private static HttpHelper instance=new HttpHelper();
+	public HttpHelper getHelper(){
+		return instance;
+	}
 	/**
 	 * 根据传入参数获取cookie
 	 * 
