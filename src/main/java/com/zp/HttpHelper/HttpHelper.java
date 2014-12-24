@@ -25,11 +25,15 @@ public class HttpHelper {
 	//cache开关，true则开启自身缓存
 	private boolean cacheswitch=false;
 	
-	public boolean isCacheswitch() {
+	public boolean isCacheing() {
 		return cacheswitch;
 	}
-	public void setCacheswitch(boolean cacheswitch) {
-		this.cacheswitch = cacheswitch;
+	
+	public void openCache(){
+		cacheswitch=true;
+	}
+	public void stopCache(){
+		cacheswitch=false;
 	}
 	private static HttpHelper instance=new HttpHelper();
 	public HttpHelper getHelper(){
@@ -46,7 +50,7 @@ public class HttpHelper {
 	 * @return
 	 * @throws IOException
 	 */
-	public static String getCookie(String url, Map<String, String> paramsMap,
+	public  String getCookie(String url, Map<String, String> paramsMap,
 			String cookie, String charset) throws IOException {
 		if (url == null || url.isEmpty()) {
 			return null;
@@ -104,7 +108,7 @@ public class HttpHelper {
 	 * @return
 	 * @throws IOException
 	 */
-	public static String get(String url, String cookie, String charset)
+	public  String get(String url, String cookie, String charset)
 			throws IOException {
 		if (url == null || url.isEmpty()) {
 			return null;
@@ -146,14 +150,14 @@ public class HttpHelper {
 	 * @return
 	 * @throws IOException
 	 */
-	public static String get(String url) throws IOException {
+	public  String get(String url) throws IOException {
 		return get(url, null, null);
 	}
-	public static String get(String url,String charset) throws IOException{
+	public  String get(String url,String charset) throws IOException{
 		return get(url, null, charset);
 	}
 
-	public static String post(String url, Map<String, String> map)
+	public  String post(String url, Map<String, String> map)
 			throws IOException {
 		return post(url, map, null, null);
 	}
@@ -169,7 +173,7 @@ public class HttpHelper {
 	 * @return
 	 * @throws IOException
 	 */
-	public static String post(String url, Map<String, String> paramsMap,
+	public  String post(String url, Map<String, String> paramsMap,
 			String cookie, String charset) throws IOException {
 		if (url == null || url.isEmpty()) {
 			return null;
@@ -219,7 +223,7 @@ public class HttpHelper {
 	 * @param charset
 	 * @return
 	 */
-	private static CloseableHttpClient getCloseableHttpClient() {
+	private  CloseableHttpClient getCloseableHttpClient() {
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 
 		return httpclient;
@@ -233,7 +237,7 @@ public class HttpHelper {
 	 *            参数集, 键/值对
 	 * @return NameValuePair参数集
 	 */
-	private static List<NameValuePair> getParamsList(
+	private  List<NameValuePair> getParamsList(
 			Map<String, String> paramsMap) {
 		if (paramsMap == null || paramsMap.size() == 0) {
 			return null;
