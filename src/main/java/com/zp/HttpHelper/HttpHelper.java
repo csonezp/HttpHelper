@@ -21,29 +21,32 @@ import org.apache.http.util.EntityUtils;
 import com.zp.HttpHelper.cache.CacheManager;
 
 public class HttpHelper {
-	private HttpHelper(){}
+	private HttpHelper() {
+	}
+
 	private static final String CHARSET_UTF8 = "UTF-8";
 	private static final String CHARSET_GBK = "GBK";
-	//cache开关，true则开启自身缓存
-	private boolean cacheswitch=false;
-	private static HttpHelper instance=new HttpHelper();
-	private CacheManager cacheManager=CacheManager.getInstance();
-	
-	
+	// cache开关，true则开启自身缓存
+	private boolean cacheswitch = false;
+	private static HttpHelper instance = new HttpHelper();
+	private CacheManager cacheManager = CacheManager.getInstance();
+
 	public boolean isCacheing() {
 		return cacheswitch;
 	}
-	
-	public void openCache(){
-		cacheswitch=true;
+
+	public void openCache() {
+		cacheswitch = true;
 	}
-	public void stopCache(){
-		cacheswitch=false;
+
+	public void stopCache() {
+		cacheswitch = false;
 	}
-	
-	public static HttpHelper getHelper(){
+
+	public static HttpHelper getHelper() {
 		return instance;
 	}
+
 	/**
 	 * 根据传入参数获取cookie
 	 * 
@@ -55,7 +58,7 @@ public class HttpHelper {
 	 * @return
 	 * @throws IOException
 	 */
-	public  String getCookie(String url, Map<String, String> paramsMap,
+	public String getCookie(String url, Map<String, String> paramsMap,
 			String cookie, String charset) throws IOException {
 		if (url == null || url.isEmpty()) {
 			return null;
@@ -113,16 +116,16 @@ public class HttpHelper {
 	 * @return
 	 * @throws IOException
 	 */
-	public  String get(String url, String cookie, String charset)
+	public String get(String url, String cookie, String charset)
 			throws IOException {
 		if (url == null || url.isEmpty()) {
 			return null;
 		}
-		//如果缓存中有，则直接取出并返回
-		if(cacheswitch=true){
-			Object cacheObj=cacheManager.get(url);
-			if(cacheObj!=null){
-				return (String)cacheObj;
+		// 如果缓存中有，则直接取出并返回
+		if (cacheswitch == true) {
+			Object cacheObj = cacheManager.get(url);
+			if (cacheObj != null) {
+				return (String) cacheObj;
 			}
 		}
 		charset = (charset == null ? CHARSET_UTF8 : charset);
@@ -137,10 +140,12 @@ public class HttpHelper {
 		try {
 			response = httpClient.execute(get);
 			HttpEntity entity = response.getEntity();
-			System.out.println("HTTPHELPER_GET:"+url);
-			res = EntityUtils.toString(entity,charset);
-			//放入缓存
-			cacheManager.put(url, res);
+			System.out.println("HTTPHELPER_GET:" + url);
+			res = EntityUtils.toString(entity, charset);
+			// 放入缓存
+			if (cacheswitch) {
+				cacheManager.put(url, res);
+			}
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -165,18 +170,17 @@ public class HttpHelper {
 	 * @return
 	 * @throws IOException
 	 */
-	public  String get(String url) throws IOException {
+	public String get(String url) throws IOException {
 		return get(url, null, null);
 	}
-	public  String get(String url,String charset) throws IOException{
+
+	public String get(String url, String charset) throws IOException {
 		return get(url, null, charset);
 	}
 
-	public  String post(String url, Map<String, String> map)
-			throws IOException {
+	public String post(String url, Map<String, String> map) throws IOException {
 		return post(url, map, null, null);
 	}
-	
 
 	/**
 	 * post方法，cookie可为空
@@ -188,7 +192,7 @@ public class HttpHelper {
 	 * @return
 	 * @throws IOException
 	 */
-	public  String post(String url, Map<String, String> paramsMap,
+	public String post(String url, Map<String, String> paramsMap,
 			String cookie, String charset) throws IOException {
 		if (url == null || url.isEmpty()) {
 			return null;
@@ -210,7 +214,7 @@ public class HttpHelper {
 				post.setHeader("Cookie", cookie);
 			}
 			response = httpClient.execute(post);
-			res = EntityUtils.toString(response.getEntity(),charset);
+			res = EntityUtils.toString(response.getEntity(), charset);
 
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
@@ -238,7 +242,7 @@ public class HttpHelper {
 	 * @param charset
 	 * @return
 	 */
-	private  CloseableHttpClient getCloseableHttpClient() {
+	private CloseableHttpClient getCloseableHttpClient() {
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 
 		return httpclient;
@@ -252,8 +256,7 @@ public class HttpHelper {
 	 *            参数集, 键/值对
 	 * @return NameValuePair参数集
 	 */
-	private  List<NameValuePair> getParamsList(
-			Map<String, String> paramsMap) {
+	private List<NameValuePair> getParamsList(Map<String, String> paramsMap) {
 		if (paramsMap == null || paramsMap.size() == 0) {
 			return null;
 		}
