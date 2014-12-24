@@ -25,7 +25,7 @@ public class CacheManager extends Cache {
 	private CacheManager(){
 		
 	}
-	public CacheManager getInstance(){
+	public static CacheManager getInstance(){
 		return instance;
 	}
 
