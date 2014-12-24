@@ -17,13 +17,14 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.apache.log4j.Logger;
 
 import com.zp.HttpHelper.cache.CacheManager;
 
 public class HttpHelper {
 	private HttpHelper() {
 	}
-
+	private static Logger logger = Logger.getLogger(HttpHelper.class);  
 	private static final String CHARSET_UTF8 = "UTF-8";
 	private static final String CHARSET_GBK = "GBK";
 	// cache开关，true则开启自身缓存
@@ -84,13 +85,10 @@ public class HttpHelper {
 					.getValue();
 			cookie = set_cookie.substring(0, set_cookie.indexOf(";"));
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			if (response != null) {
@@ -140,7 +138,8 @@ public class HttpHelper {
 		try {
 			response = httpClient.execute(get);
 			HttpEntity entity = response.getEntity();
-			System.out.println("HTTPHELPER_GET:" + url);
+			
+			logger.info("GET:" + url);
 			res = EntityUtils.toString(entity, charset);
 			// 放入缓存
 			if (cacheswitch) {

@@ -5,12 +5,17 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
+import com.zp.HttpHelper.HttpHelper;
+
 /**
  * 单例的缓存类
  * @author 张鹏
  */
 public class CacheManager extends Cache {
 
+	private static Logger logger = Logger.getLogger(CacheManager.class);
 	//用来存放cache数据
 	static LinkedHashMap<String, CacheObject> cache = new LinkedHashMap<String,CacheObject>(2000, 0.75f, true) {
 		private static final long serialVersionUID = 1L;
@@ -34,7 +39,7 @@ public class CacheManager extends Cache {
 	public void put(String key, Object object) {
 		CacheObject cacheObject=new CacheObject(key,object);
 		cache.put(key, cacheObject);
-		System.out.println("CACHE_PUTKEY:"+key);
+		logger.info("PUTKEY:"+key);
 		
 	}
 	
@@ -47,11 +52,12 @@ public class CacheManager extends Cache {
 			long span=(now.getTime()-cacheObject.getDate().getTime())/1000;
 			if(span>livetime){
 				cache.remove(key);
-				System.out.println("CACHE_OUTTIME:"+key);
+				logger.info("OUTTIME:"+key);
+				
 				return null;
 			}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 			else {
-				System.out.println("CACHE_GETKEY:"+key);
+				logger.info("GETKEY:"+key);
 				return cacheObject.getValue();
 				
 			}
