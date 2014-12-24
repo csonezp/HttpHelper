@@ -18,12 +18,17 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
+import com.zp.HttpHelper.cache.CacheManager;
+
 public class HttpHelper {
 	private HttpHelper(){}
 	private static final String CHARSET_UTF8 = "UTF-8";
 	private static final String CHARSET_GBK = "GBK";
 	//cache开关，true则开启自身缓存
 	private boolean cacheswitch=false;
+	private static HttpHelper instance=new HttpHelper();
+	private CacheManager cacheManager=CacheManager.getInstance();
+	
 	
 	public boolean isCacheing() {
 		return cacheswitch;
@@ -35,8 +40,8 @@ public class HttpHelper {
 	public void stopCache(){
 		cacheswitch=false;
 	}
-	private static HttpHelper instance=new HttpHelper();
-	public HttpHelper getHelper(){
+	
+	public static HttpHelper getHelper(){
 		return instance;
 	}
 	/**
@@ -113,6 +118,13 @@ public class HttpHelper {
 		if (url == null || url.isEmpty()) {
 			return null;
 		}
+		//如果缓存中有，则直接取出并返回
+		if(cacheswitch=true){
+			Object cacheObj=cacheManager.get(url);
+			if(cacheObj!=null){
+				return (String)cacheObj;
+			}
+		}
 		charset = (charset == null ? CHARSET_UTF8 : charset);
 		CloseableHttpClient httpClient = getCloseableHttpClient();
 		HttpGet get = new HttpGet(url);
@@ -125,7 +137,10 @@ public class HttpHelper {
 		try {
 			response = httpClient.execute(get);
 			HttpEntity entity = response.getEntity();
+			System.out.println("HTTPHELPER_GET:"+url);
 			res = EntityUtils.toString(entity,charset);
+			//放入缓存
+			cacheManager.put(url, res);
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

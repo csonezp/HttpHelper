@@ -34,6 +34,7 @@ public class CacheManager extends Cache {
 	public void put(String key, Object object) {
 		CacheObject cacheObject=new CacheObject(key,object);
 		cache.put(key, cacheObject);
+		System.out.println("CACHE_PUTKEY:"+key);
 		
 	}
 	
@@ -46,10 +47,13 @@ public class CacheManager extends Cache {
 			long span=(now.getTime()-cacheObject.getDate().getTime())/1000;
 			if(span>livetime){
 				cache.remove(key);
+				System.out.println("CACHE_OUTTIME:"+key);
 				return null;
 			}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 			else {
+				System.out.println("CACHE_GETKEY:"+key);
 				return cacheObject.getValue();
+				
 			}
 		}
 		
