@@ -26,6 +26,7 @@ public class HttpHelper {
 	}
 	private static Logger logger = Logger.getLogger(HttpHelper.class);  
 	private static final String CHARSET_UTF8 = "UTF-8";
+	@SuppressWarnings("unused")
 	private static final String CHARSET_GBK = "GBK";
 	// cache开关，true则开启自身缓存
 	private boolean cacheswitch = false;
@@ -70,8 +71,7 @@ public class HttpHelper {
 		UrlEncodedFormEntity entity = null;
 		HttpPost post = null;
 		CloseableHttpResponse response = null;
-		HttpEntity entity2 = null;
-		String cookie2 = null;
+		
 
 		try {
 			entity = new UrlEncodedFormEntity(params, charset);

@@ -1,13 +1,10 @@
 package com.zp.HttpHelper.cache;
 
-import java.net.URI;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import org.apache.log4j.Logger;
 
-import com.zp.HttpHelper.HttpHelper;
 
 /**
  * 单例的缓存类
