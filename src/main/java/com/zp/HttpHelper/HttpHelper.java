@@ -23,13 +23,13 @@ import org.apache.log4j.Logger;
 import com.zp.HttpHelper.cache.CacheManager;
 
 public class HttpHelper {
-	private HttpHelper() {
-	}
+	
 	private static Logger logger = Logger.getLogger(HttpHelper.class);  
 	private static final String CHARSET_UTF8 = "UTF-8";
 	@SuppressWarnings("unused")
 	private static final String CHARSET_GBK = "GBK";
 	// cache开关，true则开启自身缓存
+	private static CloseableHttpClient httpClient;
 	private boolean cacheswitch = false;
 	private static HttpHelper instance = new HttpHelper();
 	private CacheManager cacheManager = CacheManager.getInstance();
@@ -50,6 +50,9 @@ public class HttpHelper {
 	public static HttpHelper getHelper() {
 		return instance;
 	}
+	private HttpHelper(){
+		httpClient=getCloseableHttpClient();
+	}
 
 	/**
 	 * 根据传入参数设置cookie
@@ -66,7 +69,6 @@ public class HttpHelper {
 			return ;
 		}
 		charset = (charset == null ? CHARSET_UTF8 : charset);
-		CloseableHttpClient httpClient = getCloseableHttpClient();
 		List<NameValuePair> params = getParamsList(paramsMap);
 		UrlEncodedFormEntity entity = null;
 		HttpPost post = null;
@@ -93,9 +95,7 @@ public class HttpHelper {
 			if (response != null) {
 				response.close();
 			}
-			if (httpClient != null) {
-				httpClient.close();
-			}
+			
 		}
 		return ;
 
@@ -124,7 +124,6 @@ public class HttpHelper {
 			}
 		}
 		charset = (charset == null ? CHARSET_UTF8 : charset);
-		CloseableHttpClient httpClient = getCloseableHttpClient();
 		HttpGet get = new HttpGet(url);
 		if (cookieheaders != null && cookieheaders.length>0) {
 
@@ -154,9 +153,7 @@ public class HttpHelper {
 			if (response != null) {
 				response.close();
 			}
-			if (httpClient != null) {
-				httpClient.close();
-			}
+			
 		}
 		return res;
 	}
@@ -192,7 +189,6 @@ public class HttpHelper {
 		if (url == null || url.isEmpty()) {
 			return null;
 		}
-		CloseableHttpClient httpClient = getCloseableHttpClient();
 		List<NameValuePair> params = getParamsList(paramsMap);
 		UrlEncodedFormEntity formEntity = null;
 		HttpPost post = null;
@@ -225,9 +221,7 @@ public class HttpHelper {
 			if (response != null) {
 				response.close();
 			}
-			if (httpClient != null) {
-				httpClient.close();
-			}
+			
 		}
 		return res;
 
@@ -241,11 +235,14 @@ public class HttpHelper {
 	 */
 	private CloseableHttpClient getCloseableHttpClient() {
 		CloseableHttpClient httpclient = HttpClients.createDefault();
+		
 
 		return httpclient;
 
 	}
-
+	public void closeClient() throws IOException{
+		httpClient.close();
+	}
 	/**
 	 * 将传入的键/值对参数转换为NameValuePair参数集
 	 *
