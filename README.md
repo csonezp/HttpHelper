@@ -2,7 +2,7 @@
 
 ####对HttpClient进行封装，简化get/post操作，使用简单方便。   
   
-在Java开发中，HttpClient的应用非常广泛。用的多了，自然会想去把他封装一下，写一个自己的小类库，方便自己日常学习工作使用。于是，就结合工作情况，利用业余时间简单的对HC进行了一下封装，最终的结果就是发起Http请求只用传递URL，[编码]，[参数],[cookie]，一个函数就能返回响应数据。  
+在Java开发中，HttpClient的应用非常广泛。用的多了，自然会想去把他封装一下，写一个自己的小类库，方便自己日常学习工作使用。于是，就结合工作情况，利用业余时间简单的对HC进行了一下封装，最终的结果就是发起Http请求只用传递URL，[编码]，[参数]，一个函数就能返回响应数据。  
 
 例如，如果你想以Post方式，name=xxx为参数访问domain.com,则只需构建出helper对象，将参数放到map中，只需String result=helper.post("domaon.com",map);就可以方便的获得响应内容。  
 
@@ -14,5 +14,11 @@
 - post()：POST方法，可带参数和cookie  
 - getcookie()：获取cookie
 - 更多信息可参见代码    
+
+使用示例：
+	HttpHelper helper=HttpHelper.getHelper();
+	helper.getCookie("loginurl", map,null);
+	System.out.println(helper.get("privateurl"));
+	helper.closeClient();
 
 由于技术和经验方面的原因，代码写的可能有很多没有考虑到的地方，望大家不吝指教。
