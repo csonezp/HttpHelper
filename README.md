@@ -15,6 +15,7 @@
 - getcookie()：获取cookie
 - 更多信息可参见代码    
 
+
 使用示例：
 	HttpHelper helper=HttpHelper.getHelper();
 	helper.getCookie("loginurl", map,null);
