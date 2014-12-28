@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -32,6 +33,7 @@ public class HttpHelper {
 	private boolean cacheswitch = false;
 	private static HttpHelper instance = new HttpHelper();
 	private CacheManager cacheManager = CacheManager.getInstance();
+	Header[] cookieheaders=new Header[]{};
 
 	public boolean isCacheing() {
 		return cacheswitch;
@@ -50,20 +52,18 @@ public class HttpHelper {
 	}
 
 	/**
-	 * 根据传入参数获取cookie
+	 * 根据传入参数设置cookie
 	 * 
 	 * @param url
 	 * @param paramsMap
-	 * @param cookie
-	 *            双重cookie用，可为null
 	 * @param charset
 	 * @return
 	 * @throws IOException
 	 */
-	public String getCookie(String url, Map<String, String> paramsMap,
-			String cookie, String charset) throws IOException {
+	public void getCookie(String url, Map<String, String> paramsMap,
+			 String charset) throws IOException {
 		if (url == null || url.isEmpty()) {
-			return null;
+			return ;
 		}
 		charset = (charset == null ? CHARSET_UTF8 : charset);
 		CloseableHttpClient httpClient = getCloseableHttpClient();
@@ -76,14 +76,13 @@ public class HttpHelper {
 		try {
 			entity = new UrlEncodedFormEntity(params, charset);
 			post = new HttpPost(url);
-			if (cookie != null && !cookie.isEmpty()) {
-				post.setHeader("Cookie", cookie);
-			}
+			
 			post.setEntity(entity);
 			response = httpClient.execute(post);
-			String set_cookie = response.getFirstHeader("Set-Cookie")
-					.getValue();
-			cookie = set_cookie.substring(0, set_cookie.indexOf(";"));
+			String res = EntityUtils.toString(response.getEntity(), "utf-8");
+			
+			cookieheaders=response.getHeaders("Set-Cookie");
+//			cookie = set_cookie.substring(0, set_cookie.indexOf(";"));
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		} catch (ClientProtocolException e) {
@@ -98,23 +97,21 @@ public class HttpHelper {
 				httpClient.close();
 			}
 		}
-		return cookie;
+		return ;
 
 	}
 
 	/**
-	 * get方法，参数需自己构建到url中
+	 * get方法，参数需自己构建到url中，如果需要cookie则用getcookie方法设置
 	 * 
 	 * @param url
 	 *            地址
-	 * @param cookie
-	 *            可为null
 	 * @param charset
 	 *            默认utf8，可为空
 	 * @return
 	 * @throws IOException
 	 */
-	public String get(String url, String cookie, String charset)
+	public String get(String url, String charset)
 			throws IOException {
 		if (url == null || url.isEmpty()) {
 			return null;
@@ -129,9 +126,11 @@ public class HttpHelper {
 		charset = (charset == null ? CHARSET_UTF8 : charset);
 		CloseableHttpClient httpClient = getCloseableHttpClient();
 		HttpGet get = new HttpGet(url);
-		if (cookie != null && !cookie.isEmpty()) {
+		if (cookieheaders != null && cookieheaders.length>0) {
 
-			get.setHeader("Cookie", cookie);
+			for(Header header:cookieheaders){
+				get.addHeader(header);
+			}
 		}
 		CloseableHttpResponse response = null;
 		String res = null;
@@ -170,29 +169,26 @@ public class HttpHelper {
 	 * @throws IOException
 	 */
 	public String get(String url) throws IOException {
-		return get(url, null, null);
+		return get(url,  null);
 	}
 
-	public String get(String url, String charset) throws IOException {
-		return get(url, null, charset);
-	}
+	
 
 	public String post(String url, Map<String, String> map) throws IOException {
-		return post(url, map, null, null);
+		return post(url, map,  null);
 	}
 
 	/**
-	 * post方法，cookie可为空
+	 * post方法，如果需要cookie则用getcookie方法设置
 	 * 
 	 * @param url
 	 * @param paramsMap
-	 * @param cookie
 	 * @param charset
 	 * @return
 	 * @throws IOException
 	 */
 	public String post(String url, Map<String, String> paramsMap,
-			String cookie, String charset) throws IOException {
+			 String charset) throws IOException {
 		if (url == null || url.isEmpty()) {
 			return null;
 		}
@@ -208,9 +204,11 @@ public class HttpHelper {
 			post = new HttpPost(url);
 
 			post.setEntity(formEntity);
-			if (cookie != null && !cookie.isEmpty()) {
+			if (cookieheaders != null && cookieheaders.length>0) {
 
-				post.setHeader("Cookie", cookie);
+				for(Header header:cookieheaders){
+					post.addHeader(header);
+				}
 			}
 			response = httpClient.execute(post);
 			res = EntityUtils.toString(response.getEntity(), charset);
