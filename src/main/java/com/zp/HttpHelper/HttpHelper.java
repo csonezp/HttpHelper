@@ -134,6 +134,7 @@ public class HttpHelper {
 				return (String) cacheObj;
 			}
 		}
+		
 		charset = (charset == null ? CHARSET_UTF8 : charset);
 		HttpGet get = new HttpGet(url);
 		if (cookieheaders != null && cookieheaders.length > 0) {
