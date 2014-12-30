@@ -23,35 +23,46 @@ import org.apache.log4j.Logger;
 import com.zp.HttpHelper.cache.CacheManager;
 
 public class HttpHelper {
-	
-	private static Logger logger = Logger.getLogger(HttpHelper.class);  
+
+	private static Logger logger = Logger.getLogger(HttpHelper.class);
 	private static final String CHARSET_UTF8 = "UTF-8";
 	@SuppressWarnings("unused")
 	private static final String CHARSET_GBK = "GBK";
 	// cache开关，true则开启自身缓存
 	private static CloseableHttpClient httpClient;
 	private boolean cacheswitch = false;
+	//懒汉式单例
 	private static HttpHelper instance = new HttpHelper();
 	private CacheManager cacheManager = CacheManager.getInstance();
-	Header[] cookieheaders=new Header[]{};
+	Header[] cookieheaders = new Header[] {};
 
+	//私有构造函数，单例
+	private HttpHelper() {
+		httpClient = getCloseableHttpClient();
+	}
+	//缓存是否打开
 	public boolean isCacheing() {
 		return cacheswitch;
 	}
-
+	//打开缓存
 	public void openCache() {
 		cacheswitch = true;
 	}
-
+	//关闭缓存
 	public void stopCache() {
 		cacheswitch = false;
 	}
 
+	//对外开放的获取类的单独实例的接口
 	public static HttpHelper getHelper() {
 		return instance;
 	}
-	private HttpHelper(){
-		httpClient=getCloseableHttpClient();
+
+	//设置cache保存时间，超时则刷新
+	public void setCacheAlivetime(long sec) {
+		if (cacheswitch) {
+			cacheManager.setAliveTime(sec);
+		}
 	}
 
 	/**
@@ -64,27 +75,28 @@ public class HttpHelper {
 	 * @throws IOException
 	 */
 	public void getCookie(String url, Map<String, String> paramsMap,
-			 String charset) throws IOException {
+			String charset) throws IOException {
+
 		if (url == null || url.isEmpty()) {
-			return ;
+			return;
 		}
+		// 如果传入编码则使用传入的编码，否则utf8
 		charset = (charset == null ? CHARSET_UTF8 : charset);
+		// 将map转成List<NameValuePair>
 		List<NameValuePair> params = getParamsList(paramsMap);
 		UrlEncodedFormEntity entity = null;
 		HttpPost post = null;
 		CloseableHttpResponse response = null;
-		
 
 		try {
 			entity = new UrlEncodedFormEntity(params, charset);
 			post = new HttpPost(url);
-			
+			// 设置post的参数
 			post.setEntity(entity);
 			response = httpClient.execute(post);
-			String res = EntityUtils.toString(response.getEntity(), "utf-8");
-			
-			cookieheaders=response.getHeaders("Set-Cookie");
-//			cookie = set_cookie.substring(0, set_cookie.indexOf(";"));
+			// 保存response的名称为Set-Cookie的headers
+			cookieheaders = response.getHeaders("Set-Cookie");
+			// cookie = set_cookie.substring(0, set_cookie.indexOf(";"));
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		} catch (ClientProtocolException e) {
@@ -95,9 +107,9 @@ public class HttpHelper {
 			if (response != null) {
 				response.close();
 			}
-			
+
 		}
-		return ;
+		return;
 
 	}
 
@@ -111,8 +123,7 @@ public class HttpHelper {
 	 * @return
 	 * @throws IOException
 	 */
-	public String get(String url, String charset)
-			throws IOException {
+	public String get(String url, String charset) throws IOException {
 		if (url == null || url.isEmpty()) {
 			return null;
 		}
@@ -125,9 +136,9 @@ public class HttpHelper {
 		}
 		charset = (charset == null ? CHARSET_UTF8 : charset);
 		HttpGet get = new HttpGet(url);
-		if (cookieheaders != null && cookieheaders.length>0) {
+		if (cookieheaders != null && cookieheaders.length > 0) {
 
-			for(Header header:cookieheaders){
+			for (Header header : cookieheaders) {
 				get.addHeader(header);
 			}
 		}
@@ -136,7 +147,7 @@ public class HttpHelper {
 		try {
 			response = httpClient.execute(get);
 			HttpEntity entity = response.getEntity();
-			
+
 			logger.info("GET:" + url);
 			res = EntityUtils.toString(entity, charset);
 			// 放入缓存
@@ -153,7 +164,7 @@ public class HttpHelper {
 			if (response != null) {
 				response.close();
 			}
-			
+
 		}
 		return res;
 	}
@@ -166,13 +177,11 @@ public class HttpHelper {
 	 * @throws IOException
 	 */
 	public String get(String url) throws IOException {
-		return get(url,  null);
+		return get(url, null);
 	}
 
-	
-
 	public String post(String url, Map<String, String> map) throws IOException {
-		return post(url, map,  null);
+		return post(url, map, null);
 	}
 
 	/**
@@ -184,8 +193,8 @@ public class HttpHelper {
 	 * @return
 	 * @throws IOException
 	 */
-	public String post(String url, Map<String, String> paramsMap,
-			 String charset) throws IOException {
+	public String post(String url, Map<String, String> paramsMap, String charset)
+			throws IOException {
 		if (url == null || url.isEmpty()) {
 			return null;
 		}
@@ -200,9 +209,9 @@ public class HttpHelper {
 			post = new HttpPost(url);
 
 			post.setEntity(formEntity);
-			if (cookieheaders != null && cookieheaders.length>0) {
+			if (cookieheaders != null && cookieheaders.length > 0) {
 
-				for(Header header:cookieheaders){
+				for (Header header : cookieheaders) {
 					post.addHeader(header);
 				}
 			}
@@ -221,7 +230,7 @@ public class HttpHelper {
 			if (response != null) {
 				response.close();
 			}
-			
+
 		}
 		return res;
 
@@ -235,14 +244,15 @@ public class HttpHelper {
 	 */
 	private CloseableHttpClient getCloseableHttpClient() {
 		CloseableHttpClient httpclient = HttpClients.createDefault();
-		
 
 		return httpclient;
 
 	}
-	public void closeClient() throws IOException{
+
+	public void closeClient() throws IOException {
 		httpClient.close();
 	}
+
 	/**
 	 * 将传入的键/值对参数转换为NameValuePair参数集
 	 *
