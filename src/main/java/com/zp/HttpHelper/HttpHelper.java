@@ -217,7 +217,7 @@ public class HttpHelper {
 				}
 			}
 			response = httpClient.execute(post);
-			res = EntityUtils.toString(response.getEntity(), charset);
+			res = EntityUtils.toString(response.getEntity());
 
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
@@ -263,11 +263,14 @@ public class HttpHelper {
 	 */
 	private List<NameValuePair> getParamsList(Map<String, String> paramsMap) {
 		if (paramsMap == null || paramsMap.size() == 0) {
-			return null;
+			return new  ArrayList<NameValuePair>();
 		}
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
 		for (Map.Entry<String, String> map : paramsMap.entrySet()) {
 			params.add(new BasicNameValuePair(map.getKey(), map.getValue()));
+		}
+		if(params==null){
+			return new  ArrayList<NameValuePair>();
 		}
 		return params;
 	}
