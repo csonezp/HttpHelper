@@ -36,6 +36,9 @@ public class HttpHelper {
 	private CacheManager cacheManager = CacheManager.getInstance();
 	Header[] cookieheaders = new Header[] {};
 
+	public CloseableHttpClient getHttpClient(){
+		return httpClient;
+	}
 	//私有构造函数，单例
 	private HttpHelper() {
 		httpClient = getCloseableHttpClient();
@@ -112,6 +115,10 @@ public class HttpHelper {
 		return;
 
 	}
+	
+	public void setCookies(Header[] headers){
+		cookieheaders=headers;
+	}
 
 	/**
 	 * get方法，参数需自己构建到url中，如果需要cookie则用getcookie方法设置
@@ -169,6 +176,63 @@ public class HttpHelper {
 		}
 		return res;
 	}
+	
+	/**
+	 * 对应cookie是单独设置的网站，通过某些办法把cookie的头信息提取出来，然后传到这里
+	 * @param url
+	 * @param charset
+	 * @param cookie
+	 * @return
+	 * @throws IOException
+	 */
+	public String get(String url, String charset, String cookie) throws IOException {
+		if (url == null || url.isEmpty()) {
+			return null;
+		}
+		// 如果缓存中有，则直接取出并返回
+		if (cacheswitch == true) {
+			Object cacheObj = cacheManager.get(url);
+			if (cacheObj != null) {
+				return (String) cacheObj;
+			}
+		}
+		
+		charset = (charset == null ? CHARSET_UTF8 : charset);
+		HttpGet get = new HttpGet(url);
+		if (cookieheaders != null && cookieheaders.length > 0) {
+
+			for (Header header : cookieheaders) {
+				get.addHeader(header);
+			}
+		}
+		get.addHeader("cookie", cookie);
+		CloseableHttpResponse response = null;
+		String res = null;
+		try {
+			response = httpClient.execute(get);
+			HttpEntity entity = response.getEntity();
+
+			logger.info("GET:" + url);
+			res = EntityUtils.toString(entity, charset);
+			// 放入缓存
+			if (cacheswitch) {
+				cacheManager.put(url, res);
+			}
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			if (response != null) {
+				response.close();
+			}
+
+		}
+		return res;
+	}
+	
 
 	/**
 	 * 只传一个网址的get
